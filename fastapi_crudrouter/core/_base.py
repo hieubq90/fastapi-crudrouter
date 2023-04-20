@@ -14,6 +14,7 @@ class CRUDGenerator(Generic[T], APIRouter, ABC):
     schema: Type[T]
     create_schema: Type[T]
     update_schema: Type[T]
+    detail_schema: Type[T]
     _base_path: str = "/"
 
     def __init__(
@@ -21,6 +22,7 @@ class CRUDGenerator(Generic[T], APIRouter, ABC):
         schema: Type[T],
         create_schema: Optional[Type[T]] = None,
         update_schema: Optional[Type[T]] = None,
+        detail_schema: Optional[Type[T]] = None,
         prefix: Optional[str] = None,
         tags: Optional[List[str]] = None,
         paginate: Optional[int] = None,
@@ -44,6 +46,12 @@ class CRUDGenerator(Generic[T], APIRouter, ABC):
         self.update_schema = (
             update_schema
             if update_schema
+            else schema_factory(self.schema, pk_field_name=self._pk, name="Update")
+        )
+
+        self.detail_schema = (
+            detail_schema
+            if detail_schema
             else schema_factory(self.schema, pk_field_name=self._pk, name="Update")
         )
 
@@ -88,7 +96,7 @@ class CRUDGenerator(Generic[T], APIRouter, ABC):
                 "/{item_id}",
                 self._get_one(),
                 methods=["GET"],
-                response_model=self.schema,
+                response_model=self.detail_schema,
                 summary="Get One",
                 dependencies=get_one_route,
                 error_responses=[NOT_FOUND],
