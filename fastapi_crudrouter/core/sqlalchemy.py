@@ -89,8 +89,8 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
     def _get_one(self, *args: Any, **kwargs: Any) -> CALLABLE:
         def route(
             item_id: self._pk_type, db: Session = Depends(self.db_func)  # type: ignore
-        ) -> Model:
-            model: Model = db.query(self.db_model).get(item_id)
+        ) -> self.detail_schema:
+            model: self.detail_schema = db.query(self.db_model).get(item_id)
 
             if model:
                 return model
